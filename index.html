@@ -67,8 +67,18 @@ body{background:linear-gradient(160deg,#fff8ef 0%,#f2f8ff 100%);min-height:100vh
 .home-ic{position:fixed;left:16px;bottom:16px;width:50px;height:50px;border-radius:50%;border:none;background:#AB47BC;
  color:#fff;font-size:22px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.2)}
 h2.res{font-size:30px;text-align:center;margin-bottom:2px}
+.namecard{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
+ margin:-26px 16px 18px;position:relative;z-index:5}
+.namecard input{border:3px solid #AB47BC;border-radius:14px;padding:12px 18px;font-size:18px;font-weight:bold;
+ width:220px;text-align:center;outline:none;font-family:inherit}
+.namecard button{border:none;border-radius:14px;padding:12px 24px;font-size:16.5px;font-weight:bold;cursor:pointer;
+ color:#fff;background:linear-gradient(135deg,#AB47BC,#0D9488)}
+.nametag{display:inline-flex;align-items:center;gap:8px;background:#fff;border-radius:999px;
+ padding:10px 22px;box-shadow:0 4px 14px rgba(0,0,0,.12);font-size:18px;font-weight:bold;color:#AB47BC;cursor:pointer}
 .coingift{margin:18px auto 0;background:linear-gradient(135deg,#fff8e1,#ffecb3);border:3px dashed #f9a825;
  border-radius:22px;padding:22px 20px;text-align:center;max-width:560px}
+.reportimg{width:min(460px,100%);border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,.18);margin:14px auto 4px;display:block}
+.srhint{font-size:13.5px;color:#999;margin-top:6px}
 .coingift .big{font-size:52px;line-height:1.2}
 .coingift .num{font-size:46px;font-weight:bold;color:#e65100}
 .coingift .say{font-size:18px;font-weight:bold;color:#6d4c00;margin-top:6px;line-height:1.7}
@@ -86,6 +96,7 @@ h2.res{font-size:30px;text-align:center;margin-bottom:2px}
 <button class="sndbtn" id="snd" onclick="toggleSnd()">🔊</button>
 <div class="coinbar" id="coinbar"><span class="coin">★</span><span id="coinN">0</span><span style="font-size:13px;color:#999">枚金币</span></div>
 <div id="home">
+ <div class="namecard" id="nameArea"></div>
  <div class="menu">
   <div class="mode" onclick="start('rand15')"><div class="ic">🎮</div><div class="t">开始闯关！</div><div class="d">随机 15 题 · 每题 3 金币</div></div>
   <div class="mode" onclick="start('wrong')"><div class="ic">🔁</div><div class="t">错题大作战</div><div class="d">把错题变成金币！</div></div>
@@ -133,7 +144,9 @@ h2.res{font-size:30px;text-align:center;margin-bottom:2px}
     <div class="num" id="rCoin">0</div>
     <div style="font-size:15px;color:#a3860b">枚金币</div>
     <div class="say">快去截图，找你的<b style="color:#e65100">练习课导老师</b><br>领取金币吧！🙌</div>
+    <div id="fbSend" class="srhint" style="display:none"></div>
   </div>
+  <div id="fbStatus" style="margin-top:16px;padding:10px 14px;border-radius:12px;font-size:14.5px;font-weight:bold;display:none"></div>
   <div id="rStars" style="font-size:36px;margin:14px 0 4px"></div>
   <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:8px">
     <button class="btn" onclick="start('wrong')">🔁 错题大作战</button>
@@ -149,6 +162,31 @@ const KEY="quiz_zj_v2";
 const PRAISE=["太棒啦！🌟","真聪明！🧠","哇，答对啦！🎉","厉害厉害！👍","你就是小天才！✨","稳稳拿下！💪"];
 const CHEER=["没关系，看完解析你就会啦！","错一题没关系，金币下次赚回来！","差一点点，看解析补补课～"];
 let order=[],cur=0,ansMap={},coins=0,combo=0,snd=true;
+let kidName=localStorage.getItem(KEY+".name")||"";
+const HOOK="https://open.feishu.cn/open-apis/bot/v2/hook/210ddde5-3e30-40bf-a097-94cd1e7ea5c9";
+function renderName(){
+ const area=document.getElementById("nameArea");
+ if(kidName){area.innerHTML=`<span class="nametag" onclick="askName()">👋 ${kidName} 小朋友 · 点击改名</span>`}
+ else{area.innerHTML=`<input id="nameIn" placeholder="请输入孩子姓名" maxlength="10"><button onclick="saveName()">✔ 开始刷题</button>`}
+}
+function saveName(){
+ const v=document.getElementById("nameIn").value.trim();
+ if(!v){alert("先输入名字才能开始哦～");return}
+ kidName=v.slice(0,10);localStorage.setItem(KEY+".name",kidName);renderName();
+}
+function sendFeishu(ok,total){
+ const st=document.getElementById("fbStatus");
+ const text=`${kidName||"未署名"}｜答对 ${ok}/${total}｜金币 +${ok*3}`;
+ if(!st)return;
+ st.style.display="block";st.style.background="#f0f4ff";st.style.color="#3355aa";
+ st.textContent="📤 正在把成绩发到老师群...";
+ fetch(HOOK,{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({msg_type:"text",content:{text:"【图灵杯刷题】"+text}})})
+ .then(r=>r.json()).then(()=>{st.style.background="#e6f7e9";st.style.color="#1d7a44";
+  st.textContent="✅ 成绩已自动发到老师群： "+text})
+ .catch(()=>{st.style.background="#fff3e0";st.style.color="#a06000";
+  st.textContent="⚠️ 自动发送失败，请手动发给老师： "+text});
+}
 let wrong=new Set(JSON.parse(localStorage.getItem(KEY+".wrong")||"[]"));
 function saveWrong(){localStorage.setItem(KEY+".wrong",JSON.stringify([...wrong]))}
 function shuffled(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -298,6 +336,7 @@ function result(){
  document.getElementById("rStars").textContent=rate>=90?"⭐⭐⭐⭐⭐":rate>=75?"⭐⭐⭐⭐":rate>=60?"⭐⭐⭐":rate>=40?"⭐⭐":"⭐";
  show(["result"]);
  if(ok>0){confetti();beep(true)}
+ sendFeishu(ok, ok+bad);
 }
 function renderProg(){
  const total=QUIZ.length,w=wrong.size;
@@ -308,5 +347,5 @@ function renderProg(){
    <div style="flex:1;min-width:150px">✅ 已掌握：<b style="color:#3cb371">${total-w}</b> 题</div>
   </div>`;
 }
-renderProg();
+renderProg();renderName();
 </script></body></html>
