@@ -67,8 +67,8 @@ body{background:linear-gradient(160deg,#fff8ef 0%,#f2f8ff 100%);min-height:100vh
 .home-ic{position:fixed;left:16px;bottom:16px;width:50px;height:50px;border-radius:50%;border:none;background:#AB47BC;
  color:#fff;font-size:22px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,.2)}
 h2.res{font-size:30px;text-align:center;margin-bottom:2px}
-.namecard{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
- margin:-26px 16px 18px;position:relative;z-index:5}
+.namecard{background:#fff;border-radius:20px;box-shadow:0 5px 16px rgba(0,0,0,.1);margin:0 16px 26px;padding:22px 24px;position:relative;z-index:5}
+.namecard .ntitle{font-weight:bold;font-size:16.5px;margin-bottom:14px;color:#444;text-align:center}
 .namecard input{border:3px solid #AB47BC;border-radius:14px;padding:12px 18px;font-size:18px;font-weight:bold;
  width:220px;text-align:center;outline:none;font-family:inherit}
 .namecard button{border:none;border-radius:14px;padding:12px 24px;font-size:16.5px;font-weight:bold;cursor:pointer;
@@ -96,7 +96,7 @@ h2.res{font-size:30px;text-align:center;margin-bottom:2px}
 <button class="sndbtn" id="snd" onclick="toggleSnd()">🔊</button>
 <div class="coinbar" id="coinbar"><span class="coin">★</span><span id="coinN">0</span><span style="font-size:13px;color:#999">枚金币</span></div>
 <div id="home">
- <div class="namecard" id="nameArea"></div>
+ <div class="namecard"><div class="ntitle">✏️ 先写下你的名字（成绩要用哦）</div><div id="nameArea" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center"></div></div>
  <div class="menu">
   <div class="mode" onclick="start('rand15')"><div class="ic">🎮</div><div class="t">开始闯关！</div><div class="d">随机 15 题 · 每题 3 金币</div></div>
   <div class="mode" onclick="start('wrong')"><div class="ic">🔁</div><div class="t">错题大作战</div><div class="d">把错题变成金币！</div></div>
