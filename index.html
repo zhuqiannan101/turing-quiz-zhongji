@@ -164,6 +164,12 @@ const CHEER=["没关系，看完解析你就会啦！","错一题没关系，金
 let order=[],cur=0,ansMap={},coins=0,combo=0,snd=true;
 let kidName=localStorage.getItem(KEY+".name")||"";
 const HOOK="https://open.feishu.cn/open-apis/bot/v2/hook/26fd9708-3d27-4e95-8d20-d78bcc724575";
+function sendKill(c){
+ const kw=c>=6?"LEGENDARY!":c===5?"PENTA KILL!":c===4?"QUADRA KILL!":c===3?"TRIPLE KILL!":c===2?"DOUBLE KILL!":"FIRST BLOOD!";
+ const text=`🔥 ${kidName||"小勇士"} ${kw} 连对 ${c} 题｜金币 +${c*3}`;
+ try{fetch(HOOK,{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({msg_type:"text",content:{text:"【图灵杯'+gname+'刷题·连杀播报】"+text}})}).catch(e=>{})}catch(e){}
+}
 const GROUP="【图灵杯中级组刷题】";
 function renderName(){
  const area=document.getElementById("nameArea");
@@ -292,7 +298,7 @@ function pick(L){
  ansMap[cur]=L;
  const ok=L===q.ans;
  if(ok){
-   combo++;addCoins(3,document.getElementById("fb"));
+   combo++;sendKill(combo);addCoins(3,document.getElementById("fb"));
    const kw=killWord(combo);
    if(kw){killPop(kw);killSfx(Math.min(combo,6))}
    else{beep(true)}
